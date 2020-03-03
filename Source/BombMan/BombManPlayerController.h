@@ -26,6 +26,8 @@ public:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	void SpawnBombInput();
+
 private:
 	APawn* Pawn;
 };

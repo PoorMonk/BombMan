@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "BombManCharacter.generated.h"
 
+class ABombActor;
+
 UCLASS()
 class BOMBMAN_API ABombManCharacter : public ACharacter
 {
@@ -29,4 +31,10 @@ public:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	void SpawnBomb();
+	float RevisePosition(int value, float scale);
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Bomb")
+	TSubclassOf<ABombActor> Bomb;
 };

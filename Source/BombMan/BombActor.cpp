@@ -24,6 +24,8 @@ void ABombActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	BoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ABombActor::OnOverlapEnd);
 }
 
 // Called every frame
@@ -31,5 +33,13 @@ void ABombActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABombActor::OnOverlapEnd(UPrimitiveComponent * OverlapComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == GetOwner())
+	{
+		BoxCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	}
 }
 
