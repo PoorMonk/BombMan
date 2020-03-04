@@ -9,6 +9,7 @@
 class UBoxComponent;
 class UStaticMeshComponent;
 class UParticleSystemComponent;
+class ABlastActor;
 
 UCLASS()
 class BOMBMAN_API ABombActor : public AActor
@@ -29,6 +30,9 @@ public:
 
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlapComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void Detonate();
+	FVector LineTraceDirection(FVector direction);
+	void SpawnBlast(FVector Direction);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Component")
@@ -37,4 +41,14 @@ private:
 	UStaticMeshComponent* BombSM;
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	UParticleSystemComponent* SparksPar;
+
+	UPROPERTY(EditAnywhere, Category = "Detonate")
+	float TimeDelay_Detonate = 1.0f;
+	FTimerHandle TimeHandle_Detonate;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1", ClampMax = "10"))
+	int BlastLength = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Detonate")
+	TSubclassOf<ABlastActor> BlastAc;
 };

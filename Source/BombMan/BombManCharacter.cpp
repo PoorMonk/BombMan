@@ -55,8 +55,13 @@ void ABombManCharacter::SpawnBomb()
 	{
 		FActorSpawnParameters Params;
 		Params.Owner = this;
-		GetWorld()->SpawnActor<ABombActor>(Bomb, GetActorLocation(), FRotator::ZeroRotator, Params);
+		GetWorld()->SpawnActor<ABombActor>(Bomb, RevisePosition(GetActorLocation()), FRotator::ZeroRotator, Params);
 	}
+}
+
+FVector ABombManCharacter::RevisePosition(FVector vector)
+{
+	return FVector(RevisePosition(vector.X, 100), RevisePosition(vector.Y, 100), 0);
 }
 
 float ABombManCharacter::RevisePosition(int value, float scale)

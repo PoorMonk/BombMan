@@ -5,6 +5,10 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "TimerManager.h"
+#include "BlastActor.h"
+#include "Engine/World.h"
+
 // Sets default values
 ABombActor::ABombActor()
 {
@@ -26,6 +30,8 @@ void ABombActor::BeginPlay()
 	
 	BoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ABombActor::OnOverlapEnd);
+
+	GetWorldTimerManager().SetTimer(TimeHandle_Detonate, this, &ABombActor::Detonate, TimeDelay_Detonate, false);
 }
 
 // Called every frame
@@ -41,5 +47,35 @@ void ABombActor::OnOverlapEnd(UPrimitiveComponent * OverlapComp, AActor * OtherA
 	{
 		BoxCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 	}
+}
+
+void ABombActor::Detonate()
+{
+	SpawnBlast(FVector::ForwardVector);
+	SpawnBlast(FVector::RightVector);
+	Destroy();
+}
+
+FVector ABombActor::LineTraceDirection(FVector direction)
+{
+	FVector OriginPos = GetActorLocation();
+	FVector EndPos = OriginPos + direction * 100 * BlastLength;
+	TArray<FHitResult> Hits;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	GetWorld()->LineTraceMultiByChannel(Hits, OriginPos, EndPos, ECC_EngineTraceChannel1, Params);
+
+	if (Hits.Num() > 0)
+	{
+		EndPos = Hits.Last().ImpactPoint;
+	}
+
+	return EndPos;
+}
+
+void ABombActor::SpawnBlast(FVector Direction)
+{
+	ABlastActor* blashAc = GetWorld()->SpawnActor<ABlastActor>(BlastAc, GetActorLocation(), FRotator::ZeroRotator);
+	blashAc->SetupBlast(GetActorLocation(), LineTraceDirection(Direction));
 }
 

@@ -32,6 +32,9 @@ public:
 	void MoveRight(float AxisValue);
 
 	void SpawnBomb();
+	FVector RevisePosition(FVector vector);
+
+private:
 	float RevisePosition(int value, float scale);
 
 private:
