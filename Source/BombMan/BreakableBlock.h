@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "BreakableBlock.generated.h"
 
+class UParticleSystem;
+class ABombManGameModeBase;
+class APowerActor;
 
 UCLASS()
 class BOMBMAN_API ABreakableBlock : public AActor
@@ -24,7 +27,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void OnDestroy();
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BreakableBlockSM;
+
+	UPROPERTY(EditAnywhere, Category = "Explosion")
+	UParticleSystem* ExplosionPS;
+
+	ABombManGameModeBase* BombManGM;
+	UPROPERTY(EditAnywhere, Category = "Explosion")
+	TSubclassOf<APowerActor> PowerupAc;
 };

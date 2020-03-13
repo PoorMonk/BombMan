@@ -10,6 +10,7 @@ class UBoxComponent;
 class UStaticMeshComponent;
 class UParticleSystemComponent;
 class ABlastActor;
+class ABombManCharacter;
 
 UCLASS()
 class BOMBMAN_API ABombActor : public AActor
@@ -34,6 +35,8 @@ public:
 	FVector LineTraceDirection(FVector direction);
 	void SpawnBlast(FVector Direction);
 
+	void SetBlastRange(float BlastRange);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	UBoxComponent* BoxCollision;
@@ -46,9 +49,14 @@ private:
 	float TimeDelay_Detonate = 1.0f;
 	FTimerHandle TimeHandle_Detonate;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "1", ClampMax = "10"))
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1", ClampMax = "10"), Category = "Detonate")
 	int BlastLength = 1;
 
 	UPROPERTY(EditAnywhere, Category = "Detonate")
 	TSubclassOf<ABlastActor> BlastAc;
+
+	ABombManCharacter* bombManCharacter;
+
+	UPROPERTY(EditAnywhere, Category = "Detonate")
+	class USoundCue* ExplosionSound;
 };

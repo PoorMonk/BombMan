@@ -16,6 +16,8 @@ ABlastActor::ABlastActor()
 	RootComponent = SceneComp;
 	BlastSM = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BlastComponent"));
 	BlastSM->SetupAttachment(RootComponent);
+	
+	InitialLifeSpan = 1.0f;
 }
 
 // Called when the game starts or when spawned
@@ -34,13 +36,10 @@ void ABlastActor::Tick(float DeltaTime)
 
 void ABlastActor::SetupBlast(FVector originPos, FVector endPos)
 {
+	SetActorLocation(FMath::Lerp(originPos, endPos, 0.5f));
 	float strench = FVector::Distance(originPos, endPos) / 100;
 	FVector scale = GetActorScale3D();
 	scale.X = strench;
-	if (originPos.Y == endPos.Y)
-	{
-		SetActorRotation(FRotator(0.0f, 0.0f, 90.0f));
-	}
 	SetActorScale3D(scale);
 }
 

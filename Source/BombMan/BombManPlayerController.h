@@ -28,6 +28,8 @@ public:
 
 	void SpawnBombInput();
 
+	void RemoteDenotateInput();
+
 private:
 	APawn* Pawn;
 };

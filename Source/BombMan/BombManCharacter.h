@@ -34,10 +34,33 @@ public:
 	void SpawnBomb();
 	FVector RevisePosition(FVector vector);
 
+	void AddBlastRange();
+	void AddBombLimit();
+	void SetHasRemote();
+
+	void RemoveBomb(ABombActor* bomeActor);
+
+	FORCEINLINE bool IsHasRemote() { return HasRemote; }
+	void Detonate();
+
+	void OnDeath();
+
 private:
 	float RevisePosition(int value, float scale);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Bomb")
 	TSubclassOf<ABombActor> Bomb;
+	UPROPERTY(EditAnywhere, Category = "Bomb")
+	float BlastRange = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Bomb")
+	float BombLimit = 1.0f;
+
+	TArray<ABombActor*> BombsArr;
+
+	bool HasRemote = false;
+
+	bool IsDead = false;
+
+	class ABombManGameModeBase* GameMode;
 };

@@ -51,8 +51,6 @@ ABlockGeneration::ABlockGeneration() : Width(15), Height(15), Scale(100.0f)
 }
 ```
 
-
-
 ### 设置相机视角
 
 1 新建一个继承自CameraActor的类，命名为MainCamera。
@@ -271,3 +269,12 @@ void ABombManPlayerController::MoveRight(float AxisValue)
 6 在BP_BombManGameMode蓝图类中设置在BeginPlay事件中创建玩家二
 
 ![](D:\Unreal\Pictures\025.png)
+
+### 游戏中获取游戏模式的两种方式
+
+```cpp
+AMyGameMode *GM = GetWorld()->GetAuthGameMode<AMyGameMode>();
+UGameplayStatics::GetGameMode(UObject* WorldContextObject);
+```
+
+后者是对前者的封装

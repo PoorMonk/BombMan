@@ -21,12 +21,14 @@ void ABombManPlayerController::SetupInputComponent()
 		InputComponent->BindAxis("MoveForward_P1", this, &ABombManPlayerController::MoveForward);
 		InputComponent->BindAxis("MoveRight_P1", this, &ABombManPlayerController::MoveRight);
 		InputComponent->BindAction("Bomb_P1", IE_Pressed, this, &ABombManPlayerController::SpawnBombInput);
+		InputComponent->BindAction("RemoteDenotate_P1", IE_Pressed, this, &ABombManPlayerController::RemoteDenotateInput);
 	}
 	else if (id == 1)
 	{
 		InputComponent->BindAxis("MoveForward_P2", this, &ABombManPlayerController::MoveForward);
 		InputComponent->BindAxis("MoveRight_P2", this, &ABombManPlayerController::MoveRight);
 		InputComponent->BindAction("Bomb_P2", IE_Pressed, this, &ABombManPlayerController::SpawnBombInput);
+		InputComponent->BindAction("RemoteDenotate_P2", IE_Pressed, this, &ABombManPlayerController::RemoteDenotateInput);
 	}
 }
 
@@ -57,6 +59,22 @@ void ABombManPlayerController::SpawnBombInput()
 		if (PlayerController)
 		{
 			PlayerController->SpawnBomb();
+		}
+	}
+}
+
+void ABombManPlayerController::RemoteDenotateInput()
+{
+	Pawn = GetPawn();
+	if (Pawn)
+	{
+		ABombManCharacter* PlayerController = Cast<ABombManCharacter>(Pawn);
+		if (PlayerController)
+		{
+			if (PlayerController->IsHasRemote())
+			{
+				PlayerController->Detonate();
+			}
 		}
 	}
 }

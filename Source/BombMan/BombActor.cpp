@@ -8,6 +8,11 @@
 #include "TimerManager.h"
 #include "BlastActor.h"
 #include "Engine/World.h"
+#include "BreakableBlock.h"
+#include "BombManCharacter.h"
+#include "BombManGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ABombActor::ABombActor()
@@ -31,7 +36,16 @@ void ABombActor::BeginPlay()
 	BoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ABombActor::OnOverlapEnd);
 
-	GetWorldTimerManager().SetTimer(TimeHandle_Detonate, this, &ABombActor::Detonate, TimeDelay_Detonate, false);
+	bombManCharacter = Cast<ABombManCharacter>(GetOwner());
+
+	if (bombManCharacter->IsHasRemote())
+	{
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(TimeHandle_Detonate, this, &ABombActor::Detonate, TimeDelay_Detonate, false);
+	}
+
 }
 
 // Called every frame
@@ -51,8 +65,12 @@ void ABombActor::OnOverlapEnd(UPrimitiveComponent * OverlapComp, AActor * OtherA
 
 void ABombActor::Detonate()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
 	SpawnBlast(FVector::ForwardVector);
 	SpawnBlast(FVector::RightVector);
+
+	bombManCharacter->RemoveBomb(this);
+
 	Destroy();
 }
 
@@ -63,11 +81,30 @@ FVector ABombActor::LineTraceDirection(FVector direction)
 	TArray<FHitResult> Hits;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-	GetWorld()->LineTraceMultiByChannel(Hits, OriginPos, EndPos, ECC_EngineTraceChannel1, Params);
+	GetWorld()->LineTraceMultiByChannel(Hits, OriginPos, EndPos, ECC_GameTraceChannel1, Params);
 
 	if (Hits.Num() > 0)
 	{
 		EndPos = Hits.Last().ImpactPoint;
+		for (auto hit : Hits)
+		{
+			ABreakableBlock* BreakableBlock = Cast<ABreakableBlock>(hit.GetActor());
+			if (BreakableBlock)
+			{
+				BreakableBlock->OnDestroy();
+			}
+			else
+			{
+				ABombManCharacter* BombManCharacter = Cast<ABombManCharacter>(hit.GetActor());
+				if (BombManCharacter)
+				{
+					FString tempString = "Hit Player";
+					UE_LOG(LogTemp, Warning, TEXT("%s"), *tempString);
+					//Cast<ABombManGameModeBase>(GetWorld()->GetAuthGameMode())->OnPlayerDeath(BombManCharacter);
+					BombManCharacter->OnDeath();
+				}
+			}
+		}
 	}
 
 	return EndPos;
@@ -75,7 +112,25 @@ FVector ABombActor::LineTraceDirection(FVector direction)
 
 void ABombActor::SpawnBlast(FVector Direction)
 {
-	ABlastActor* blashAc = GetWorld()->SpawnActor<ABlastActor>(BlastAc, GetActorLocation(), FRotator::ZeroRotator);
-	blashAc->SetupBlast(GetActorLocation(), LineTraceDirection(Direction));
+	ABlastActor* blashAc = nullptr;
+	if (Direction == FVector::RightVector)
+	{
+		FRotator newRotator;
+		newRotator.Pitch = 0.0f;
+		newRotator.Yaw = 90.0f;
+		newRotator.Roll = 0.0f;
+		blashAc = GetWorld()->SpawnActor<ABlastActor>(BlastAc, GetActorLocation(), newRotator);
+		//blashAc->SetupBlast(GetActorLocation(), LineTraceDirection(Direction));
+	}
+	else if (Direction == FVector::ForwardVector)
+	{
+		blashAc = GetWorld()->SpawnActor<ABlastActor>(BlastAc, GetActorLocation(), FRotator::ZeroRotator);
+	}
+	blashAc->SetupBlast(LineTraceDirection(-Direction), LineTraceDirection(Direction));
+}
+
+void ABombActor::SetBlastRange(float BlastRange)
+{
+	BlastLength = BlastRange;
 }
 
